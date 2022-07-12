@@ -1,45 +1,80 @@
-import { useState } from 'react'
-import logo from './logo.svg'
-import './App.css'
+import {
+  Box,
+  Button,
+  Container,
+  Flex,
+  HStack,
+  IconButton,
+  Input,
+  Skeleton,
+  Stack,
+} from "@chakra-ui/react";
+import { faLocationCrosshairs } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { GoogleMap, useJsApiLoader } from "@react-google-maps/api";
+
+// const key = import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY;
+
+const center = { lat: 48.8584, lng: 2.2945 };
+
+// const libraries = ["places"];
 
 function App() {
-  const [count, setCount] = useState(0)
+  const { isLoaded } = useJsApiLoader({
+    googleMapsApiKey: import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY,
+    // libraries,
+  });
+
+  if (!isLoaded) {
+    return (
+      <Stack>
+        <Skeleton height='20px' />
+        <Skeleton height='20px' />
+        <Skeleton height='20px' />
+      </Stack>
+    );
+  }
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>Hello Vite + React!</p>
-        <p>
-          <button type="button" onClick={() => setCount((count) => count + 1)}>
-            count is: {count}
-          </button>
-        </p>
-        <p>
-          Edit <code>App.jsx</code> and save to test HMR updates.
-        </p>
-        <p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-          {' | '}
-          <a
-            className="App-link"
-            href="https://vitejs.dev/guide/features.html"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Vite Docs
-          </a>
-        </p>
-      </header>
-    </div>
-  )
+    <Flex
+      position='relative'
+      flexDirection='column'
+      alignItems='center'
+      h='100vh'
+      w='100vw'
+      pt='4%'
+    >
+      <Box position='absolute' left='0' top='0' h='100%' w='100%'>
+        <GoogleMap
+          center={center}
+          zoom={15}
+          mapContainerStyle={{ width: "99vw", height: "98vh" }}
+        ></GoogleMap>
+      </Box>
+      <Box
+        p={4}
+        borderRadius='lg'
+        m={4}
+        bgColor='white'
+        shadow='base'
+        minW={Container.md}
+      >
+        <Flex flexDirection='row' alignItems='center'>
+          <HStack spacing={4}>
+            <Input type='text' zIndex={1} placeholder='type a location' />
+            <Button type='submit' color='black'>
+              Search
+            </Button>
+            <IconButton
+              icon={<FontAwesomeIcon icon={faLocationCrosshairs} />}
+              p={2}
+            ></IconButton>
+          </HStack>
+        </Flex>
+      </Box>
+      Google Maps clone
+    </Flex>
+  );
 }
 
-export default App
+export default App;
