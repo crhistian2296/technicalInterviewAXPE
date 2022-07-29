@@ -10,34 +10,49 @@ import {
 } from "@chakra-ui/react";
 import { faLocationCrosshairs } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
-import { useState } from "react";
-import useForm from "./hooks/useForm";
-
-// const key = import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY;
+import {
+  Autocomplete,
+  GoogleMap,
+  Marker,
+  useJsApiLoader,
+} from "@react-google-maps/api";
+import { useRef, useState } from "react";
 
 // madrid coordinates
 const center = { lat: 40.4168, lng: -3.7038 };
 
-// const libraries = ["places"];
+const libraries = ["places"];
 
 function App() {
+  const [map, setMap] = useState(/** @type google.maps.Map */ null);
   const [markers, setMarkers] = useState([]);
-  const { formValues, handleInputChange, reset } = useForm({
-    location: "",
-  });
-
-  const { location } = formValues;
+  const [search, setSearch] = useState({});
+  const inputRef = useRef();
+  const [inputText, setInputText] = useState("");
 
   const handleSubmit = e => {
     e.preventDefault();
-    return formValues.location;
-    // reset();
+    if (!search.lat) return;
+    map.panTo(search);
+  };
+
+  const handlePlaceChanged = () => {
+    const placeCoords =
+      inputRef.current.gm_accessors_?.place.Qj.place?.geometry?.location ??
+      null;
+    if (!placeCoords) return;
+    const lat = placeCoords.lat();
+    const lng = placeCoords.lng();
+    const placeName =
+      inputRef.current.gm_accessors_.place.Qj.formattedPrediction;
+
+    setSearch(() => ({ lat, lng }));
+    setInputText(placeName);
   };
 
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY,
-    // libraries,
+    libraries,
   });
 
   if (!isLoaded) {
@@ -61,6 +76,7 @@ function App() {
     >
       <Box position='absolute' left='0' top='0' h='100%' w='100%'>
         <GoogleMap
+          onLoad={map => setMap(map)}
           center={center}
           zoom={15}
           mapContainerStyle={{ width: "99vw", height: "98vh" }}
@@ -88,32 +104,39 @@ function App() {
         minW={Container.md}
       >
         <Flex flexDirection='row' alignItems='center'>
-          <HStack spacing={4} h='40px'>
-            <Input
-              type='text'
-              h='28px'
-              zIndex={1}
-              placeholder='type a location'
-              name='location'
-              value={location}
-              onChange={handleInputChange}
-            />
-            <Button
-              type='submit'
-              colorScheme='whiteAlpha'
-              color='black'
-              h='34px'
-              onSubmit={() => {
-                handleSubmit();
-                reset();
-              }}
-            >
-              Search
-            </Button>
-            <Button p={8}>
-              <FontAwesomeIcon icon={faLocationCrosshairs} />
-            </Button>
-          </HStack>
+          <form style={{ zIndex: "2" }} onSubmit={() => handleSubmit()}>
+            <HStack spacing={4} h='40px' zIndex={2}>
+              <Autocomplete
+                onLoad={ref => {
+                  inputRef.current = ref;
+                }}
+                onPlaceChanged={handlePlaceChanged}
+                zIndex={5}
+              >
+                <Input
+                  type='text'
+                  h='28px'
+                  zIndex={2}
+                  placeholder='type a location'
+                  name='location'
+                  value={inputText}
+                  onChange={e => setInputText(e.target.value)}
+                />
+              </Autocomplete>
+              <Button
+                type='submit'
+                colorScheme='whiteAlpha'
+                color='black'
+                h='34px'
+                onClick={handleSubmit}
+              >
+                Search
+              </Button>
+              <Button p={8} onClick={() => map.panTo(center)}>
+                <FontAwesomeIcon icon={faLocationCrosshairs} />
+              </Button>
+            </HStack>
+          </form>
         </Flex>
       </Box>
       Google Maps clone
