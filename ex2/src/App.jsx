@@ -1,13 +1,4 @@
-import {
-  Box,
-  Button,
-  Container,
-  Flex,
-  HStack,
-  Input,
-  Skeleton,
-  Stack,
-} from "@chakra-ui/react";
+import { Box, Button, Container, Flex, HStack, Input } from "@chakra-ui/react";
 import { faLocationCrosshairs } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -17,6 +8,7 @@ import {
   useJsApiLoader,
 } from "@react-google-maps/api";
 import { useRef, useState } from "react";
+import SkeletonScreen from "./components/SkeletonScreen";
 
 // madrid coordinates
 const center = { lat: 40.4168, lng: -3.7038 };
@@ -56,13 +48,7 @@ function App() {
   });
 
   if (!isLoaded) {
-    return (
-      <Stack>
-        <Skeleton height='20px' />
-        <Skeleton height='20px' />
-        <Skeleton height='20px' />
-      </Stack>
-    );
+    return <SkeletonScreen />;
   }
 
   return (
