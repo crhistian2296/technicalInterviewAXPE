@@ -29,14 +29,15 @@ function App() {
   };
 
   const handlePlaceChanged = () => {
-    const placeCoords =
-      inputRef.current.gm_accessors_?.place.Qj.place?.geometry?.location ??
-      null;
+    // console.log(inputRef.current);
+    const data = inputRef.current.gm_accessors_?.place;
+    const accessPropName = Object.keys(data).at(0);
+    // console.log(accessPropName);
+    const placeCoords = data[accessPropName].place?.geometry?.location ?? null;
     if (!placeCoords) return;
     const lat = placeCoords.lat();
     const lng = placeCoords.lng();
-    const placeName =
-      inputRef.current.gm_accessors_.place.Qj.formattedPrediction;
+    const placeName = data[accessPropName].formattedPrediction;
 
     setSearch(() => ({ lat, lng }));
     setInputText(placeName);
