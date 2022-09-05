@@ -61,6 +61,7 @@ function App() {
       w='100vw'
       pt='4%'
     >
+      {/* Map */}
       <Box position='absolute' left='0' top='0' h='100%' w='100%'>
         <GoogleMap
           onLoad={map => setMap(map)}
@@ -82,6 +83,7 @@ function App() {
           ))}
         </GoogleMap>
       </Box>
+      {/* Navbar */}
       <Box
         p={4}
         borderRadius='lg'
@@ -126,7 +128,6 @@ function App() {
           </form>
         </Flex>
       </Box>
-      Google Maps clone
     </Flex>
   );
 }
